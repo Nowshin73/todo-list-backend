@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const bodyParser = require("body-parser");
+//const bodyParser = require("body-parser");
 require('dotenv').config()
 
 const port = process.env.PORT || 5000;
@@ -10,7 +10,7 @@ const port = process.env.PORT || 5000;
 // middleware
 app.use(cors());
 app.use(express.json());
-app.use(bodyParser.json());
+//app.use(bodyParser.json());
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.zmagebg.mongodb.net/?retryWrites=true&w=majority`;
@@ -55,6 +55,20 @@ app.put('/tasks/:id', async (req, res) => {
   const result = await tasksCollection.replaceOne(filter, updatedtasks);
   res.send(result);
 })
+
+app.patch('/tasks/:id', async (req, res) =>{
+  const id = req.params.id;
+  const task = {_id: new ObjectId(id)};
+  const updateIsDone = {$set: { role: req.body.isDone }};
+  const result = await tasksCollection.updateOne(task, updateIsDone);
+  if(result.modifiedCount > 0){
+    res.send(result);
+  }
+  else {
+    res.status(500).send({ message: 'Error in updating user'});
+  }
+})
+
 // Send a ping to confirm a successful connection
 //await client.db("admin").command({ ping: 1 });
 console.log("Pinged your deployment. You successfully connected to MongoDB!");
