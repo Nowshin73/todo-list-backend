@@ -53,13 +53,18 @@ app.put('/tasks/:id', async (req, res) => {
   const filter = { _id: new ObjectId(id) };
   const updatedtasks = req.body;
   const result = await tasksCollection.replaceOne(filter, updatedtasks);
-  res.send(result);
+ if(result.modifiedCount > 0){
+    res.send(result);
+  }
+  else {
+    res.status(500).send({ message: 'Error in updating user'});
+  }
 })
 
 app.patch('/tasks/:id', async (req, res) =>{
   const id = req.params.id;
   const task = {_id: new ObjectId(id)};
-  const updateIsDone = {$set: { role: req.body.isDone }};
+  const updateIsDone = {$set: { isDone: req.body.isDone }};
   const result = await tasksCollection.updateOne(task, updateIsDone);
   if(result.modifiedCount > 0){
     res.send(result);
@@ -82,3 +87,4 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`TodoList is running on port ${port}`);
 })
+module.exports = app;
